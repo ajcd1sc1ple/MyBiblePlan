@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBiblePlan</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1f2e">
+    <meta name="apple-mobile-web-app-title" content="MyBiblePlan">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyB6hhatJ93SKS_YbMaRJ107ULTRASPSc8w",
+            authDomain: "mybibleapp-c27bd.firebaseapp.com",
+            projectId: "mybibleapp-c27bd",
+            storageBucket: "mybibleapp-c27bd.firebasestorage.app",
+            messagingSenderId: "968022701543",
+            appId: "1:968022701543:web:12126ee28e9e9c3ed8b942",
+            measurementId: "G-ZQEYZCM0JD"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // Make Firebase available globally
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.googleProvider = googleProvider;
+    </script>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+            <h1 class="bible-title">Today's reading</h1>
+            <div class="topbar-actions">
+                <button class="circle-btn" id="authBtn" type="button" aria-label="Sign in">
+                    <span id="authBtnText">👤</span>
+                </button>
+                <button class="circle-btn" id="searchBtn" type="button" aria-label="Search">
+                    <span>⌕</span>
+                </button>
+                <button class="circle-btn" id="fontSizeBtn" type="button" aria-label="Font size">
+                    <span>T</span>
+                </button>
+            </div>
+        </div>
+        <div class="chapter-selector-row">
+            <div class="day-navigation-left">
+                <span class="completion-checkmark" id="completionCheckmark" aria-hidden="true" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="10" r="9" stroke="white" stroke-width="2" fill="none"/>
+                        <path d="M6 10 L9 13 L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                </span>
+                <button class="chapter-btn" id="chapterBtn" type="button">
+                    <span id="currentChapter">Genesis 1</span>
+                </button>
+            </div>
+            <div class="day-navigation-center">
+                <span class="day-indicator">DAY <span id="dayNumber">1</span> OF 365</span>
+            </div>
+            <div class="day-navigation-right">
+            </div>
+        </div>
+    </header>
+
+    <div class="modal" id="searchModal" aria-hidden="true">
+        <div class="modal-backdrop" id="searchBackdrop"></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+            <div class="modal-head">
+                <div class="modal-title" id="searchTitle">Search Scripture</div>
+                <button class="icon-btn" id="searchCloseBtn" type="button" aria-label="Close search">✕</button>
+            </div>
+            <div class="modal-body">
+                <form class="search-form" id="searchForm">
+                    <label class="sr-only" for="searchInput">Bible reference</label>
+                    <input class="search-input" id="searchInput" type="text" autocomplete="off" placeholder="e.g., John 3:16 or Genesis 1" />
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </form>
+
+                <div class="search-meta" id="searchMeta"></div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="fontSizeModal" aria-hidden="true">
+        <div class="modal-backdrop" id="fontSizeBackdrop"></div>
+        <div class="modal-card modal-small" role="dialog" aria-modal="true" aria-labelledby="fontSizeTitle">
+            <div class="modal-head">
+                <div class="modal-title" id="fontSizeTitle">Font Size</div>
+                <button class="icon-btn" id="fontSizeCloseBtn" type="button" aria-label="Close font size">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="font-size-controls">
+                    <label for="fontSizeSlider" class="sr-only">Font size</label>
+                    <input type="range" id="fontSizeSlider" min="0" max="5" value="2" step="1" />
+                    <div class="font-size-display">
+                        <span id="fontSizeValue">100%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="daySelectModal" aria-hidden="true">
+        <div class="modal-backdrop" id="daySelectBackdrop"></div>
+        <div class="modal-card modal-day-list" role="dialog" aria-modal="true" aria-labelledby="daySelectTitle">
+            <div class="modal-head">
+                <div class="modal-title" id="daySelectTitle">Select Day</div>
+                <button class="icon-btn" id="daySelectCloseBtn" type="button" aria-label="Close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="day-list-container" id="dayListContainer">
+                    <!-- Days will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page">
+        <div class="content">
+            <main id="verseText" class="scripture-content" aria-live="polite">
+                <div id="spinner" class="loading-spinner"></div>
+            </main>
+            
+            <div class="status-row">
+                <label class="complete-toggle" id="completeLabel">
+                    <input type="checkbox" id="completeCheck">
+                    <span class="toggle-ui" aria-hidden="true"></span>
+                    <span class="toggle-text" id="completeText">Mark as Complete</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
