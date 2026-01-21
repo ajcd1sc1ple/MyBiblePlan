@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBiblePlan</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2f6fed">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="#" aria-label="Home">
+                <span class="brand-mark" aria-hidden="true">M</span>
+                <span class="brand-name">MyBiblePlan</span>
+            </a>
+
+            <div class="topbar-actions">
+                <button class="icon-btn" id="searchBtn" type="button" aria-label="Search">
+                    <span aria-hidden="true">⌕</span>
+                </button>
+                <button class="btn btn-primary" id="installBtn" type="button">Install app</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="modal" id="searchModal" aria-hidden="true">
+        <div class="modal-backdrop" id="searchBackdrop"></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+            <div class="modal-head">
+                <div class="modal-title" id="searchTitle">Search Scripture</div>
+                <button class="icon-btn" id="searchCloseBtn" type="button" aria-label="Close search">✕</button>
+            </div>
+            <div class="modal-body">
+                <form class="search-form" id="searchForm">
+                    <label class="sr-only" for="searchInput">Bible reference</label>
+                    <input class="search-input" id="searchInput" type="text" autocomplete="off" placeholder="e.g., John 3:16 or Genesis 1" />
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </form>
+
+                <div class="search-meta" id="searchMeta"></div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page">
+        <div class="content">
+            <section class="card">
+                <div class="card-head">
+                    <p class="kicker">Plan Info</p>
+                    <h1 class="plan-title">Reading God's Story: One-Year Chronological Plan</h1>
+
+                    <div class="day-row">
+                        <div class="day-meta">
+                            <div class="day-label">DAY <span id="dayNumber">1</span> OF 365</div>
+                        </div>
+
+                        <div class="day-controls" aria-label="Day navigation">
+                            <button class="pill-btn" id="prevBtn" type="button" aria-label="Previous day">‹</button>
+                            <label class="sr-only" for="daySelect">Select day</label>
+                            <select class="day-select" id="daySelect" aria-label="Select day"></select>
+                            <button class="pill-btn" id="nextBtn" type="button" aria-label="Next day">›</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="section-head">
+                        <h2 class="section-title">Scripture</h2>
+                    </div>
+
+                    <ul class="scripture-list" id="scriptureList" aria-label="Scripture references">
+                        <li class="scripture-item skeleton"></li>
+                        <li class="scripture-item skeleton"></li>
+                    </ul>
+
+                    <div class="status-row">
+                        <label class="complete-toggle" id="completeLabel">
+                            <input type="checkbox" id="completeCheck">
+                            <span class="toggle-ui" aria-hidden="true"></span>
+                            <span class="toggle-text" id="completeText">Mark as Complete</span>
+                        </label>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <main id="verseText" class="scripture-content" aria-live="polite">
+                        <div id="spinner" class="loading-spinner"></div>
+                    </main>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
